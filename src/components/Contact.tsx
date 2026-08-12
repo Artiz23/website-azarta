@@ -1,14 +1,43 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { contacts } from '../data/content'
+import { formDelivery } from '../config/formDelivery'
 import { useLang } from '../i18n/LangContext'
 
 type FormStatus = 'idle' | 'sending' | 'sent' | 'error'
+
+async function sendToTelegram(text: string) {
+  const { telegramBotToken, telegramChatId } = formDelivery
+  if (!telegramBotToken || !telegramChatId) {
+    throw new Error('Telegram is not configured')
+  }
+
+  const response = await fetch(
+    `https://api.telegram.org/bot${telegramBotToken}/sendMessage`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: telegramChatId,
+        text,
+        parse_mode: 'HTML',
+      }),
+    },
+  )
+
+  const payload = (await response.json()) as { ok?: boolean }
+  if (!response.ok || !payload.ok) {
+    throw new Error('Telegram send failed')
+  }
+}
 
 export function Contact() {
   const { lang, t } = useLang()
   const [status, setStatus] = useState<FormStatus>('idle')
   const contactName = lang === 'en' ? contacts.nameEn : contacts.name
+  const telegramReady = Boolean(
+    formDelivery.telegramBotToken && formDelivery.telegramChatId,
+  )
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -30,26 +59,20 @@ export function Contact() {
 
     setStatus('sending')
 
+    const text = [
+      `<b>Новая заявка Azarta</b>`,
+      ``,
+      `<b>Имя:</b> ${name}`,
+      `<b>Телефон:</b> ${phone}`,
+      `<b>Услуга:</b> ${service}`,
+      `<b>Сообщение:</b> ${message || t.mailEmpty}`,
+    ].join('\n')
+
     try {
-      const response = await fetch(`https://formsubmit.co/ajax/${contacts.email}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify({
-          name,
-          phone,
-          service,
-          message: message || t.mailEmpty,
-          _subject: `${t.mailSubject} — ${name}`,
-          _template: 'table',
-          _captcha: 'false',
-        }),
-      })
-
-      if (!response.ok) throw new Error('Failed to send')
-
+      if (!telegramReady) {
+        throw new Error('Telegram is not configured')
+      }
+      await sendToTelegram(text)
       setStatus('sent')
       form.reset()
     } catch {
@@ -145,7 +168,7 @@ export function Contact() {
 
             {status === 'error' && (
               <p className="form__error" role="alert">
-                {t.formError}
+                {telegramReady ? t.formError : t.formSetupNeeded}
               </p>
             )}
 
