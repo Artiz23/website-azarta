@@ -3,34 +3,58 @@ import type { FormEvent } from 'react'
 import { contacts } from '../data/content'
 import { useLang } from '../i18n/LangContext'
 
+type FormStatus = 'idle' | 'sending' | 'sent' | 'error'
+
 export function Contact() {
   const { lang, t } = useLang()
-  const [sent, setSent] = useState(false)
+  const [status, setStatus] = useState<FormStatus>('idle')
   const contactName = lang === 'en' ? contacts.nameEn : contacts.name
 
-  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    if (status === 'sending') return
+
     const form = event.currentTarget
     const data = new FormData(form)
     const name = String(data.get('name') || '').trim()
     const phone = String(data.get('phone') || '').trim()
     const service = String(data.get('service') || '').trim()
     const message = String(data.get('message') || '').trim()
+    const honeypot = String(data.get('_gotcha') || '')
 
-    const subject = encodeURIComponent(`${t.mailSubject} — ${name}`)
-    const body = encodeURIComponent(
-      [
-        `${t.mailName}: ${name}`,
-        `${t.mailPhone}: ${phone}`,
-        `${t.mailService}: ${service}`,
-        '',
-        message || t.mailEmpty,
-      ].join('\n'),
-    )
+    if (honeypot) {
+      setStatus('sent')
+      form.reset()
+      return
+    }
 
-    window.location.href = `${contacts.emailHref}?subject=${subject}&body=${body}`
-    setSent(true)
-    form.reset()
+    setStatus('sending')
+
+    try {
+      const response = await fetch(`https://formsubmit.co/ajax/${contacts.email}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          phone,
+          service,
+          message: message || t.mailEmpty,
+          _subject: `${t.mailSubject} — ${name}`,
+          _template: 'table',
+          _captcha: 'false',
+        }),
+      })
+
+      if (!response.ok) throw new Error('Failed to send')
+
+      setStatus('sent')
+      form.reset()
+    } catch {
+      setStatus('error')
+    }
   }
 
   return (
@@ -65,15 +89,25 @@ export function Contact() {
         </div>
 
         <form
-          className={`form reveal${sent ? ' is-sent' : ''}`}
+          className={`form reveal${status === 'sent' ? ' is-sent' : ''}`}
           onSubmit={onSubmit}
           noValidate
         >
           <div className="form__success" role="status">
-            {t.formSuccess} {contacts.email} {t.formSuccessOr} {contacts.phone}.
+            <strong>{t.formSuccess}</strong>
+            <span>{t.formSuccessHint}</span>
           </div>
 
           <div className="form__fields">
+            <input
+              type="text"
+              name="_gotcha"
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden
+              className="form__honeypot"
+            />
+
             <div className="form__row">
               <div className="field">
                 <label htmlFor="name">{t.formName}</label>
@@ -109,13 +143,22 @@ export function Contact() {
               />
             </div>
 
-            <div className="form__footer">
-              <p className="form__note">
-                {t.formNote} {contacts.email}
+            {status === 'error' && (
+              <p className="form__error" role="alert">
+                {t.formError}
               </p>
-              <button type="submit" className="btn btn--primary" data-cursor="hover">
-                {t.formSubmit}
-                <span aria-hidden>↗</span>
+            )}
+
+            <div className="form__footer">
+              <p className="form__note">{t.formNote}</p>
+              <button
+                type="submit"
+                className="btn btn--primary"
+                data-cursor="hover"
+                disabled={status === 'sending'}
+              >
+                {status === 'sending' ? t.formSending : t.formSubmit}
+                {status !== 'sending' && <span aria-hidden>↗</span>}
               </button>
             </div>
           </div>
