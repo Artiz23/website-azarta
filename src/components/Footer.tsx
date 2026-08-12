@@ -1,0 +1,18 @@
+import { useLang } from '../i18n/LangContext'
+
+export function Footer() {
+  const { t } = useLang()
+
+  return (
+    <footer className="footer">
+      <div className="footer__inner">
+        <div className="footer__brand">
+          Azarta<span>.</span>
+        </div>
+        <p className="footer__copy">
+          © {new Date().getFullYear()} {t.footerCopy}
+        </p>
+      </div>
+    </footer>
+  )
+}
