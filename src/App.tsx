@@ -1,12 +1,12 @@
 import { Header } from './components/Header'
 import { Hero } from './components/Hero'
+import { Clients } from './components/Clients'
 import { Marquee } from './components/Marquee'
 import { Services } from './components/Services'
 import { Portfolio } from './components/Portfolio'
 import { Process } from './components/Process'
 import { Contact } from './components/Contact'
 import { Footer } from './components/Footer'
-import { CustomCursor } from './components/CustomCursor'
 import { useSmoothScroll } from './hooks/useSmoothScroll'
 import { LangProvider } from './i18n/LangContext'
 
@@ -20,10 +20,10 @@ function AppShell() {
   return (
     <>
       <div className="noise" aria-hidden />
-      <CustomCursor />
       <Header onOpenContact={openContact} />
       <main>
         <Hero />
+        <Clients />
         <Marquee />
         <Services />
         <Portfolio />

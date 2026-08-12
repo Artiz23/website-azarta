@@ -1,14 +1,23 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { contacts } from '../data/content'
 import { useLang } from '../i18n/LangContext'
 
 type FormStatus = 'idle' | 'sending' | 'sent' | 'error'
 
+const FORM_ENDPOINT = `https://formsubmit.co/ajax/${contacts.email}`
+
 export function Contact() {
   const { lang, t } = useLang()
   const [status, setStatus] = useState<FormStatus>('idle')
   const contactName = lang === 'en' ? contacts.nameEn : contacts.name
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('sent') === '1' || window.location.hash.includes('sent=1')) {
+      setStatus('sent')
+    }
+  }, [])
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -16,10 +25,6 @@ export function Contact() {
 
     const form = event.currentTarget
     const data = new FormData(form)
-    const name = String(data.get('name') || '').trim()
-    const phone = String(data.get('phone') || '').trim()
-    const service = String(data.get('service') || '').trim()
-    const message = String(data.get('message') || '').trim()
     const honeypot = String(data.get('_gotcha') || '')
 
     if (honeypot) {
@@ -30,29 +35,40 @@ export function Contact() {
 
     setStatus('sending')
 
+    const payload = new FormData()
+    payload.append('name', String(data.get('name') || '').trim())
+    payload.append('phone', String(data.get('phone') || '').trim())
+    payload.append('service', String(data.get('service') || '').trim())
+    payload.append(
+      'message',
+      String(data.get('message') || '').trim() || t.mailEmpty,
+    )
+    payload.append('_subject', `${t.mailSubject} — ${String(data.get('name') || '').trim()}`)
+    payload.append('_template', 'table')
+    payload.append('_honey', '')
+    payload.append('_url', 'https://artiz23.github.io/website-azarta/')
+    payload.append('email', contacts.email)
+
     try {
-      const response = await fetch(`https://formsubmit.co/ajax/${contacts.email}`, {
+      const response = await fetch(FORM_ENDPOINT, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify({
-          name,
-          phone,
-          service,
-          message: message || t.mailEmpty,
-          _subject: `${t.mailSubject} — ${name}`,
-          _template: 'table',
-          _captcha: 'false',
-          _url: 'https://artiz23.github.io/website-azarta/',
-        }),
+        body: payload,
+        headers: { Accept: 'application/json' },
       })
+
+      const result = (await response.json().catch(() => null)) as
+        | { success?: string | boolean; message?: string }
+        | null
 
       if (!response.ok) throw new Error('Failed to send')
 
+      // FormSubmit returns success even when only activation mail was sent
       setStatus('sent')
       form.reset()
+
+      if (result?.message?.toLowerCase().includes('activate')) {
+        // keep sent UI but user was told in note about activation
+      }
     } catch {
       setStatus('error')
     }
@@ -66,13 +82,13 @@ export function Contact() {
           <p>{t.contactLead}</p>
 
           <div className="contact__links">
-            <a className="contact__link" href={contacts.phoneHref} data-cursor="hover">
+            <a className="contact__link" href={contacts.phoneHref}>
               <small>
                 {t.phoneLabel} · {contactName}
               </small>
               <strong>{contacts.phone}</strong>
             </a>
-            <a className="contact__link" href={contacts.emailHref} data-cursor="hover">
+            <a className="contact__link" href={contacts.emailHref}>
               <small>{t.emailLabel}</small>
               <strong>{contacts.email}</strong>
             </a>
@@ -81,7 +97,6 @@ export function Contact() {
               href={contacts.telegram}
               target="_blank"
               rel="noreferrer"
-              data-cursor="hover"
             >
               <small>{t.telegramLabel}</small>
               <strong>{t.telegramCta}</strong>
@@ -97,6 +112,7 @@ export function Contact() {
           <div className="form__success" role="status">
             <strong>{t.formSuccess}</strong>
             <span>{t.formSuccessHint}</span>
+            <span className="form__success-note">{t.formActivateHint}</span>
           </div>
 
           <div className="form__fields">
@@ -155,7 +171,6 @@ export function Contact() {
               <button
                 type="submit"
                 className="btn btn--primary"
-                data-cursor="hover"
                 disabled={status === 'sending'}
               >
                 {status === 'sending' ? t.formSending : t.formSubmit}

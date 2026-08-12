@@ -32,10 +32,11 @@ const dictionary = {
     discuss: 'Обсудить проект',
     viewWorks: 'Смотреть работы',
     stats: [
+      { value: '5 лет', label: 'опыта в разработке сайтов' },
       { value: '6+', label: 'проектов в портфолио' },
       { value: '2', label: 'направления: сайты и боты' },
-      { value: '1 день', label: 'на первый ответ по заявке' },
     ],
+    clientsLabel: 'Нам доверяют',
     marquee: [
       'Сайты',
       'Telegram-боты',
@@ -159,6 +160,8 @@ const dictionary = {
     formSending: 'Отправляем…',
     formSuccess: 'Отправлено',
     formSuccessHint: 'Мы получили вашу заявку и скоро свяжемся с вами.',
+    formActivateHint:
+      'Если это первая заявка — откройте Gmail и нажмите Activate Form в письме от FormSubmit. После этого все заявки начнут приходить.',
     formError: 'Не удалось отправить. Попробуйте ещё раз или напишите на почту.',
     formSetupNeeded:
       'Форма ещё не подключена. Напишите нам в Telegram или на почту.',
@@ -197,10 +200,11 @@ const dictionary = {
     discuss: 'Discuss a project',
     viewWorks: 'View work',
     stats: [
+      { value: '5 yrs', label: 'of website development experience' },
       { value: '6+', label: 'projects in portfolio' },
       { value: '2', label: 'focus areas: sites & bots' },
-      { value: '1 day', label: 'to first reply on a request' },
     ],
+    clientsLabel: 'Trusted by',
     marquee: [
       'Websites',
       'Telegram bots',
@@ -324,6 +328,8 @@ const dictionary = {
     formSending: 'Sending…',
     formSuccess: 'Sent',
     formSuccessHint: 'We received your request and will contact you shortly.',
+    formActivateHint:
+      'If this is the first request — open Gmail and click Activate Form in the email from FormSubmit. After that, all requests will arrive.',
     formError: 'Couldn’t send. Please try again or email us directly.',
     formSetupNeeded:
       'The form is not connected yet. Message us on Telegram or email.',
