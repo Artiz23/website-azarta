@@ -5,8 +5,8 @@ export const contacts = {
   nameEn: 'Amal',
   phone: '+7 985 627-96-52',
   phoneHref: 'tel:+79856279652',
-  email: 'amalikeker35@gmail.com',
-  emailHref: 'mailto:amalikeker35@gmail.com',
+  email: 'amalikek35@gmail.com',
+  emailHref: 'mailto:amalikek35@gmail.com',
   telegram: 'https://t.me/+79856279652',
 }
 
