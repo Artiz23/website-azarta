@@ -1170,6 +1170,47 @@ ul {
   color: var(--accent-strong);
 }
 
+.legal-page__content h2 {
+  font-family: var(--font-display);
+  color: var(--text);
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
+  margin-top: 0.75rem;
+}
+
+.legal-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.legal-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 560px;
+}
+
+.legal-table th,
+.legal-table td {
+  padding: 0.9rem 1rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.legal-table th {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.03);
+  font-family: var(--font-display);
+  font-weight: 650;
+}
+
+.legal-table tr:last-child td {
+  border-bottom: none;
+}
+
 .legal-page__meta {
   margin-top: 1.5rem;
   padding-top: 1.2rem;

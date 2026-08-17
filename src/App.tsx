@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
+import type { ReactNode } from 'react'
 import { Header } from './components/Header'
 import { Hero } from './components/Hero'
 import { Clients } from './components/Clients'
@@ -10,6 +11,7 @@ import { Process } from './components/Process'
 import { Contact } from './components/Contact'
 import { Footer } from './components/Footer'
 import { PrivacyPage } from './components/PrivacyPage'
+import { PolicyPage } from './components/PolicyPage'
 import { useSmoothScroll } from './hooks/useSmoothScroll'
 import { LangProvider } from './i18n/LangContext'
 
@@ -55,7 +57,7 @@ function HomePage() {
   )
 }
 
-function PrivacyLayout() {
+function LegalLayout({ children }: { children: ReactNode }) {
   const navigate = useNavigate()
 
   const openContact = () => {
@@ -65,7 +67,7 @@ function PrivacyLayout() {
   return (
     <>
       <Header onOpenContact={openContact} />
-      <PrivacyPage />
+      {children}
       <Footer />
     </>
   )
@@ -78,8 +80,38 @@ function AppShell() {
       <ScrollManager />
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/agree-personal" element={<PrivacyLayout />} />
-        <Route path="/agree-personal/" element={<PrivacyLayout />} />
+        <Route
+          path="/agree-personal"
+          element={
+            <LegalLayout>
+              <PrivacyPage />
+            </LegalLayout>
+          }
+        />
+        <Route
+          path="/agree-personal/"
+          element={
+            <LegalLayout>
+              <PrivacyPage />
+            </LegalLayout>
+          }
+        />
+        <Route
+          path="/politika-konfidentsialnosti"
+          element={
+            <LegalLayout>
+              <PolicyPage />
+            </LegalLayout>
+          }
+        />
+        <Route
+          path="/politika-konfidentsialnosti/"
+          element={
+            <LegalLayout>
+              <PolicyPage />
+            </LegalLayout>
+          }
+        />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

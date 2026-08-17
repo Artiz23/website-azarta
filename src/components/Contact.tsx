@@ -182,6 +182,8 @@ export function Contact() {
               <span>
                 {t.formConsentBefore}{' '}
                 <Link to="/agree-personal/">{t.formConsentLink}</Link>
+                {t.formConsentMid}{' '}
+                <Link to="/politika-konfidentsialnosti/">{t.formPolicyLink}</Link>
                 {t.formConsentAfter}
               </span>
             </label>

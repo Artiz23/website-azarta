@@ -12,6 +12,7 @@ export function Footer() {
         </div>
         <div className="footer__links">
           <Link to="/agree-personal/">{t.privacyLink}</Link>
+          <Link to="/politika-konfidentsialnosti/">{t.policyLink}</Link>
           <p className="footer__copy">
             © {new Date().getFullYear()} {t.footerCopy}
           </p>
