@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
+import { Link } from 'react-router-dom'
 import { contacts } from '../data/content'
 import { useLang } from '../i18n/LangContext'
+import { PhoneField } from './PhoneField'
 
 type FormStatus = 'idle' | 'sending' | 'sent' | 'error'
 
@@ -10,6 +12,9 @@ const FORM_ENDPOINT = `https://formsubmit.co/ajax/${contacts.email}`
 export function Contact() {
   const { lang, t } = useLang()
   const [status, setStatus] = useState<FormStatus>('idle')
+  const [phone, setPhone] = useState('+7')
+  const [phoneValid, setPhoneValid] = useState(false)
+  const [agreed, setAgreed] = useState(false)
   const contactName = lang === 'en' ? contacts.nameEn : contacts.name
 
   useEffect(() => {
@@ -22,6 +27,16 @@ export function Contact() {
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (status === 'sending') return
+
+    if (!phoneValid) {
+      setStatus('error')
+      return
+    }
+
+    if (!agreed) {
+      setStatus('error')
+      return
+    }
 
     const form = event.currentTarget
     const data = new FormData(form)
@@ -37,7 +52,7 @@ export function Contact() {
 
     const payload = new FormData()
     payload.append('name', String(data.get('name') || '').trim())
-    payload.append('phone', String(data.get('phone') || '').trim())
+    payload.append('phone', phone)
     payload.append('service', String(data.get('service') || '').trim())
     payload.append(
       'message',
@@ -56,19 +71,13 @@ export function Contact() {
         headers: { Accept: 'application/json' },
       })
 
-      const result = (await response.json().catch(() => null)) as
-        | { success?: string | boolean; message?: string }
-        | null
-
       if (!response.ok) throw new Error('Failed to send')
 
-      // FormSubmit returns success even when only activation mail was sent
       setStatus('sent')
       form.reset()
-
-      if (result?.message?.toLowerCase().includes('activate')) {
-        // keep sent UI but user was told in note about activation
-      }
+      setAgreed(false)
+      setPhone('+7')
+      setPhoneValid(false)
     } catch {
       setStatus('error')
     }
@@ -130,16 +139,16 @@ export function Contact() {
                 <label htmlFor="name">{t.formName}</label>
                 <input id="name" name="name" required placeholder={t.formNamePh} />
               </div>
-              <div className="field">
-                <label htmlFor="phone">{t.formPhone}</label>
-                <input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  required
-                  placeholder={t.formPhonePh}
-                />
-              </div>
+              <PhoneField
+                lang={lang}
+                label={t.formPhone}
+                required
+                onChangePhone={(full, valid) => {
+                  setPhone(full)
+                  setPhoneValid(valid)
+                  if (status === 'error') setStatus('idle')
+                }}
+              />
             </div>
 
             <div className="field">
@@ -160,9 +169,30 @@ export function Contact() {
               />
             </div>
 
+            <label className="form__consent">
+              <input
+                type="checkbox"
+                checked={agreed}
+                onChange={(e) => {
+                  setAgreed(e.target.checked)
+                  if (status === 'error') setStatus('idle')
+                }}
+                required
+              />
+              <span>
+                {t.formConsentBefore}{' '}
+                <Link to="/agree-personal/">{t.formConsentLink}</Link>
+                {t.formConsentAfter}
+              </span>
+            </label>
+
             {status === 'error' && (
               <p className="form__error" role="alert">
-                {t.formError}
+                {!agreed
+                  ? t.formConsentError
+                  : !phoneValid
+                    ? t.formPhoneError
+                    : t.formError}
               </p>
             )}
 

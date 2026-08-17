@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { contacts } from '../data/content'
 import { useLang } from '../i18n/LangContext'
 
@@ -8,6 +9,7 @@ type HeaderProps = {
 
 export function Header({ onOpenContact }: HeaderProps) {
   const { lang, setLang, t } = useLang()
+  const navigate = useNavigate()
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
 
@@ -27,13 +29,21 @@ export function Header({ onOpenContact }: HeaderProps) {
 
   const close = () => setOpen(false)
 
+  const goSection = (href: string) => {
+    close()
+    if (href.startsWith('#')) {
+      navigate({ pathname: '/', hash: href.slice(1) })
+      return
+    }
+    navigate(href)
+  }
+
   const LangSwitch = ({ className = '' }: { className?: string }) => (
     <div className={`lang-switch ${className}`.trim()} role="group" aria-label={t.langAria}>
       <button
         type="button"
         className={lang === 'ru' ? 'is-active' : ''}
         onClick={() => setLang('ru')}
-        data-cursor="hover"
       >
         RU
       </button>
@@ -41,7 +51,6 @@ export function Header({ onOpenContact }: HeaderProps) {
         type="button"
         className={lang === 'en' ? 'is-active' : ''}
         onClick={() => setLang('en')}
-        data-cursor="hover"
       >
         EN
       </button>
@@ -52,13 +61,20 @@ export function Header({ onOpenContact }: HeaderProps) {
     <>
       <header className={`header${scrolled ? ' is-scrolled' : ''}`}>
         <div className="header__inner">
-          <a href="#top" className="logo" data-cursor="hover">
+          <Link to="/" className="logo" onClick={close}>
             Azarta<span>.</span>
-          </a>
+          </Link>
 
           <nav className="nav" aria-label={t.navAria}>
             {t.nav.map((link) => (
-              <a key={link.href} href={link.href} data-cursor="hover">
+              <a
+                key={link.href}
+                href={link.href}
+                onClick={(e) => {
+                  e.preventDefault()
+                  goSection(link.href)
+                }}
+              >
                 {link.label}
               </a>
             ))}
@@ -69,10 +85,10 @@ export function Header({ onOpenContact }: HeaderProps) {
             <a
               href="#contact"
               className="header__cta"
-              data-cursor="hover"
               onClick={(e) => {
                 e.preventDefault()
                 onOpenContact()
+                goSection('#contact')
               }}
             >
               {t.ctaRequest}
@@ -93,11 +109,24 @@ export function Header({ onOpenContact }: HeaderProps) {
       <div className={`mobile-nav${open ? ' is-open' : ''}`}>
         <LangSwitch className="lang-switch--mobile" />
         {t.nav.map((link) => (
-          <a key={link.href} href={link.href} onClick={close}>
+          <a
+            key={link.href}
+            href={link.href}
+            onClick={(e) => {
+              e.preventDefault()
+              goSection(link.href)
+            }}
+          >
             {link.label}
           </a>
         ))}
-        <a href="#contact" onClick={close}>
+        <a
+          href="#contact"
+          onClick={(e) => {
+            e.preventDefault()
+            goSection('#contact')
+          }}
+        >
           {t.ctaRequestShort}
         </a>
         <a href={contacts.phoneHref}>{contacts.phone}</a>
