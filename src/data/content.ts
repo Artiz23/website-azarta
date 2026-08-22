@@ -33,7 +33,7 @@ const dictionary = {
     viewWorks: 'Смотреть работы',
     stats: [
       { value: '5 лет', label: 'опыта в разработке сайтов' },
-      { value: '6+', label: 'проектов в портфолио' },
+      { value: '7+', label: 'проектов в портфолио' },
       { value: '2', label: 'направления: сайты и боты' },
     ],
     clientsLabel: 'Нам доверяют',
@@ -77,6 +77,14 @@ const dictionary = {
     worksLead: 'Реальные проекты: от коммерческих сайтов до портфолио и лендингов.',
     openSite: 'Открыть сайт',
     projects: [
+      {
+        title: 'Перкарбонат натрия',
+        category: 'Сайт + Telegram-бот',
+        description:
+          'Оптовый лендинг производителя: квиз, заявка и мгновенная отправка формы в Telegram.',
+        url: 'https://artiz23.github.io/percarbonate/',
+        accent: '#3d9a5c',
+      },
       {
         title: 'Песок и Щебень',
         category: 'Корпоративный сайт',
@@ -214,7 +222,7 @@ const dictionary = {
     viewWorks: 'View work',
     stats: [
       { value: '5 yrs', label: 'of website development experience' },
-      { value: '6+', label: 'projects in portfolio' },
+      { value: '7+', label: 'projects in portfolio' },
       { value: '2', label: 'focus areas: sites & bots' },
     ],
     clientsLabel: 'Trusted by',
@@ -258,6 +266,14 @@ const dictionary = {
     worksLead: 'Real projects: from commercial sites to portfolios and landing pages.',
     openSite: 'Open site',
     projects: [
+      {
+        title: 'Sodium Percarbonate',
+        category: 'Website + Telegram bot',
+        description:
+          'A wholesale manufacturer landing page: quiz, request form, and instant delivery to Telegram.',
+        url: 'https://artiz23.github.io/percarbonate/',
+        accent: '#3d9a5c',
+      },
       {
         title: 'Sand & Crushed Stone',
         category: 'Corporate website',
